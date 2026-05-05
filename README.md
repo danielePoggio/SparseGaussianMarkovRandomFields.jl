@@ -48,8 +48,8 @@ println("Log-likelihood of the sample: ", log_likelihood)
 
 The algorithms and mathematical frameworks implemented in this package are heavily based on the following seminal works:
 
-1. Lindgren, F., Rue, H., & Lindström, J. (2011). *An explicit link between Gaussian fields and Gaussian Markov random fields: the stochastic partial differential equation approach*. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 73(4), 423-498.
-2. Rue, H., & Held, L. (2005). *Gaussian Markov random fields: theory and applications*. CRC press.
+1. Lindgren, F., Rue, H. and Lindström, J. (2011), *An explicit link between Gaussian fields and Gaussian Markov random fields: the stochastic partial differential equation approach*. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 73: 423-498. https://doi.org/10.1111/j.1467-9868.2011.00777.x
+2. Rue, H., & Held, L. (2005). *Gaussian Markov Random Fields: Theory and Applications (1st ed.)*. Chapman and Hall/CRC. https://doi.org/10.1201/9780203492024
 3. Datta, A., Banerjee, S., Finley, A. O., & Gelfand, A. E. (2016). *Hierarchical Nearest-Neighbor Gaussian Process Models for Large Geostatistical Datasets* . Journal of the American Statistical Association, 111(514), 800–812. https://doi.org/10.1080/01621459.2015.1044091
 4. Finley, A. O., Datta, A., Cook, B. D., Morton, D. C., Andersen, H. E., & Banerjee, S. (2019). *Efficient Algorithms for Bayesian Nearest Neighbor Gaussian Processes*. Journal of Computational and Graphical Statistics, 28(2), 401–414. https://doi.org/10.1080/10618600.2018.1537924
 
