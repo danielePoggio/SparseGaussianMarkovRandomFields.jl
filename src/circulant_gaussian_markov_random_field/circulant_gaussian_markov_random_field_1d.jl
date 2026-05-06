@@ -1,42 +1,3 @@
-# ----------------------------------------------------------------
-# Util functions
-# ----------------------------------------------------------------
-
-"""
-Compute the eigenvalues for a circulant matrix with coefficient delta and offset.
-
-"""
-function _compute_circulant_eigenvalues(delta::F, n::Int; offset::F = 2.0)::Vector{F} where {F <: Real}
-    eigenvalues = zeros(F, n)
-    c0 = delta + offset
-    for j in 1:n
-        j_prime = j - 1
-        eigenvalues[j] = c0 - 2 * cos(2 * pi * j_prime / n)
-    end
-
-    return eigenvalues
-end
-
-function _compute_circulant_precision_matrix!(
-    Q::AbstractMatrix{F},
-    delta::F;
-    offset::F = 2.0
-) where {F <: Real}
-
-    n = size(Q, 1)
-    c0 = delta + offset
-    Q[1, 1] = c0
-    Q[1, 2] = -1.0
-    Q[1, n] = -1.0
-    for i in 2:(n - 1)
-        Q[i, i - 1] = -1.0
-        Q[i, i] = c0
-        Q[i, i + 1] = -1.0
-    end
-    Q[n, 1] = -1.0
-    Q[n, n - 1] = -1.0
-    Q[n, n] = c0
-end
 
 # ----------------------------------------------------------------
 # Circulant Gaussian Markov Random Field
@@ -71,7 +32,7 @@ function Distributions._rand!(
     dist::CirculantGaussianMarkovRandomField1D,
     x::AbstractVector{F}
 ) where {F <: Real}
-    eigenvalues = _compute_circulant_eigenvalues(dist.delta, dist.n, offset = dist.offset)
+    eigenvalues = _compute_circulant_eigenvalues_1d(dist.delta, dist.n, offset = dist.offset)
     eigenvalues .*= dist.marginal_variance
     eigenvalues .= 1.0 ./ sqrt.(eigenvalues)
     z_scaled = [complex(randn(rng), randn(rng)) * eigenvalues[i] for i in 1:dist.n]
@@ -97,7 +58,7 @@ end
 
 function Distributions._logpdf(d::CirculantGaussianMarkovRandomField1D, x::AbstractVector{<:Real})
     # Log-Determinante di Q (somma dei logaritmi degli autovalori)
-    eigenvals = _compute_circulant_eigenvalues(d.delta, d.n, offset=d.offset)
+    eigenvals = _compute_circulant_eigenvalues_1d(d.delta, d.n, offset=d.offset)
     eigenvals .*= d.marginal_variance
     log_det_Q = sum(log, eigenvals)
     
@@ -115,7 +76,7 @@ mean(d::CirculantGaussianMarkovRandomField1D) = zeros(d.n)
 function Distributions.invcov(d::CirculantGaussianMarkovRandomField1D)
     Q = zeros(d.n, d.n)
     # Chiama la tua funzione in-place (che userà d.delta e d.offset)
-    _compute_circulant_precision_matrix!(Q, d.delta, offset=d.offset)
+    _compute_circulant_precision_matrix_1d!(Q, d.delta, offset=d.offset)
     Q .*= d.marginal_variance
     return Q
 end

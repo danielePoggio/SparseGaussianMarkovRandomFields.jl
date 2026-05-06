@@ -1,4 +1,5 @@
 module GaussianMarkovRandomFields
+export GaussianMarkovRandomFields
 
 using Random
 using Distributions
@@ -14,13 +15,22 @@ abstract type AbstractMesh end
 
 include("utils.jl")
 
-include("circulant_gaussian_markov_random_field_1d.jl")
+include("circulant_gaussian_markov_random_field/CirculantGaussianMarkovRandomField.jl")
+
+using .CirculantGaussianMarkovRandomField
+import .CirculantGaussianMarkovRandomField: CirculantGaussianMarkovRandomField1D
 export CirculantGaussianMarkovRandomField1D
 
-include("strategy.jl")
-export MaximinOrderingStrategy, DelaunayOrderingStrategy
+include("nearest_neighbours_gaussian_process/NNGP.jl")
 
-include("nngp.jl")
-export NearestNeighbourGaussianProcess
+using .NNGP
+import .NNGP: NearestNeighbourGaussianProcess, MaximinOrderingStrategy
+export NearestNeighbourGaussianProcess, MaximinOrderingStrategy
+
+include("spde/SPDE.jl")
+
+using .SPDE
+import .SPDE: SPDEMesh, SPDEMatern
+export SPDEMesh, SPDEMatern
 
 end # module GaussianMarkovRandomFields
