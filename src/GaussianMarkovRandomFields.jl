@@ -11,9 +11,7 @@ using DelaunayTriangulation
 using SymRCM
 using FFTW
 
-abstract type AbstractMesh end
 
-include("utils.jl")
 
 include("circulant_gaussian_markov_random_field/CirculantGaussianMarkovRandomField.jl")
 

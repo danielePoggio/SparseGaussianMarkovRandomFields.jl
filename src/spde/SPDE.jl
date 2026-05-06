@@ -9,6 +9,8 @@ using SparseArrays
 
 include("utils.jl")
 
+abstract type AbstractMesh end
+
 struct SPDEMesh{F <: Real} <: AbstractMesh
     C::SparseMatrixCSC{F, Int}  # mass matrix
     G::SparseMatrixCSC{F, Int}  # stiffness matrix

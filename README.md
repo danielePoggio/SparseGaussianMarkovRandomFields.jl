@@ -28,6 +28,7 @@ Here is a simple example of how to create and sample from a 1D Circulant Gaussia
 ```julia
 using GaussianMarkovRandomFields
 using Random
+using Distributions
 
 # Define a 1D Circulant GMRF with 100 nodes and a delta parameter of 1.5
 n_nodes = 100
@@ -42,6 +43,40 @@ rand!(rng, dist, x)
 # Evaluate the log-pdf of the generated sample
 log_likelihood = logpdf(dist, x)
 println("Log-likelihood of the sample: ", log_likelihood)
+```
+
+Here an example of how to create and sample from a NNGP in 2D with exponential covariance function
+
+```julia
+using Random
+using Distributions
+using GaussianMarkovRandomFields
+
+# Generate a grid of points in [0, 1] × [0, 1]
+nx, ny = 10, 10
+x_sequence = range(0, 1, length=nx+1)
+y_sequence = range(0, 1, length=ny+1)
+n_nodes = (nx + 1) * (ny + 1)
+points = zeros(n_nodes, 2)
+points[:, 1] = repeat(x_sequence, inner = ny + 1)
+points[:, 2] = repeat(y_sequence, outer = nx + 1)
+
+# Define the strategy and create the distribution with variance 1.0 and spatial range 1.5
+n_neighs = 10
+variance = 1.0
+rho = 1.5
+strategy = MaximinOrderingStrategy(points, n_neighs)
+dist = NearestNeighbourGaussianProcess(strategy, variance, rho)
+
+# Pre-allocate a vector and sample from the distribution
+rng = MersenneTwister(42)
+x = zeros(n_nodes)
+rand!(rng, dist, x)
+
+# Evaluate the log-pdf of the generated sample
+log_likelihood = logpdf(dist, x)
+println("Log-likelihood of the sample: ", log_likelihood)
+
 ```
 
 ## 📚 References

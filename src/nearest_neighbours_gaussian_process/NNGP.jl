@@ -1,11 +1,13 @@
 module NNGP
 export NNGP
 
+using Random
 using Distributions
 using LinearAlgebra
 
-include("utils.jl")
 include("strategy.jl")
+include("utils.jl")
+
 
 struct NearestNeighbourGaussianProcess{F <: Real, S <: AbstractStrategy} <: Distributions.ContinuousMultivariateDistribution
     strategy::S
