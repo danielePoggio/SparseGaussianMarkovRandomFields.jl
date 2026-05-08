@@ -1,6 +1,6 @@
 name = "SparseGaussianMarkovRandomFields"
 uuid = "8370a3c6-8201-4fb7-9bea-e012b68638d5"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["danielePoggio <132289547+danielePoggio@users.noreply.github.com>"]
 
 [deps]
