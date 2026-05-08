@@ -195,13 +195,8 @@ rand!(rng, true_dist, y)
 
 # define turing model
 @model function nngp_model(y, strategy)
-    # Priors spaziali rigorosamente positive
-    # Usiamo delle Gamma per tenere la ricerca su valori positivi senza troncamenti bruschi
-    variance ~ Gamma(2.0, 0.5) # Media attesa: 1.0
-    rho ~ Gamma(3.0, 0.5)      # Media attesa: 1.5
-    
-    # Turing passerà numeri Dual a variance e rho.
-    # Grazie al tuo refactoring, l'NNGP allocherà internamente D e V di tipo Vector{Dual}
+    variance ~ Gamma(2.0, 0.5)
+    rho ~ Gamma(3.0, 0.5)
     dist = NearestNeighbourGaussianProcess(strategy, variance, rho)
     
     y ~ dist
