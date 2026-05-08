@@ -81,10 +81,149 @@ println("Log-likelihood of the sample: ", log_likelihood)
 ```
 
 ## NNGP Maximum Likehood Inference with `Optim.jl`
+```julia
+using ADTypes
+using Optim
+using Random
+using Distributions
+using LinearAlgebra
+using SparseGaussianMarkovRandomFields
+
+rng = MersenneTwister(42)
+
+# Building grid and generating synthetic data 
+
+nx, ny = 20, 20
+x_sequence = range(0, 1, length=nx+1)
+y_sequence = range(0, 1, length=ny+1)
+n_nodes = (nx + 1) * (ny + 1)
+points = zeros(n_nodes, 2)
+points[:, 1] = repeat(x_sequence, inner = ny + 1)
+points[:, 2] = repeat(y_sequence, outer = nx + 1)
+
+max_distance = sqrt(2)
+min_distance = x_sequence[2] - x_sequence[1]
+
+rho_max = 3.0 / min_distance
+rho_min = 3.0 / max_distance
+
+# true hyperparameters
+true_variance = 1.0
+true_rho = 6.0
+
+# defining the ordering strategy
+n_neighs = 20
+strategy = MaximinOrderingStrategy(points, n_neighs)
+
+# create distribution object 
+true_dist = NearestNeighbourGaussianProcess(strategy, true_variance, true_rho)
+y = zeros(n_nodes)
+rand!(rng, true_dist, y)
+
+# function to minimize with Optim.jl
+function neg_log_likelihood_nngp(params)
+    var_val = exp(params[1])
+    rho_val = exp(params[2])
+    d = NearestNeighbourGaussianProcess(strategy, var_val, rho_val)
+    return -logpdf(d, y)
+end
+
+lower_bounds = [-5.0, log(rho_min)]
+upper_bounds = [5.0, log(rho_max)]
+initial_guess = [log(0.5), log(0.5 * (rho_max + rho_min))]
+
+mle_results = optimize(
+    neg_log_likelihood_nngp, 
+    lower_bounds, 
+    upper_bounds, 
+    initial_guess, 
+    Fminbox(LBFGS()); 
+    autodiff = AutoForwardDiff() # <--- ForwardDiff viene attivato da qui!
+)
+
+var_mle, rho_mle = exp.(Optim.minimizer(mle_results))
+
+println("MLE Results:")
+println("Estimated Variance: $(round(var_mle, digits=3))")
+println("Estimated Rho:      $(round(rho_mle, digits=3))")
+println("Iterations:         $(Optim.iterations(risultato_mle))\n")
+
+
+```
 
 
 ## NNGP MCMC Inference with `Turing.jl` 
+```julia
 
+using Turing
+using ForwardDiff
+using Random
+using Distributions
+using LinearAlgebra
+using SparseGaussianMarkovRandomFields
+
+rng = MersenneTwister(42)
+
+# Building grid and generating synthetic data 
+
+nx, ny = 20, 20
+x_sequence = range(0, 1, length=nx+1)
+y_sequence = range(0, 1, length=ny+1)
+n_nodes = (nx + 1) * (ny + 1)
+points = zeros(n_nodes, 2)
+points[:, 1] = repeat(x_sequence, inner = ny + 1)
+points[:, 2] = repeat(y_sequence, outer = nx + 1)
+
+max_distance = sqrt(2)
+min_distance = x_sequence[2] - x_sequence[1]
+
+rho_max = 3.0 / min_distance
+rho_min = 3.0 / max_distance
+
+# true hyperparameters
+true_variance = 1.0
+true_rho = 6.0
+
+# defining the ordering strategy
+n_neighs = 20
+strategy = MaximinOrderingStrategy(points, n_neighs)
+
+# create distribution object 
+true_dist = NearestNeighbourGaussianProcess(strategy, true_variance, true_rho)
+y = zeros(n_nodes)
+rand!(rng, true_dist, y)
+
+# define turing model
+@model function nngp_model(y, strategy)
+    # Priors spaziali rigorosamente positive
+    # Usiamo delle Gamma per tenere la ricerca su valori positivi senza troncamenti bruschi
+    variance ~ Gamma(2.0, 0.5) # Media attesa: 1.0
+    rho ~ Gamma(3.0, 0.5)      # Media attesa: 1.5
+    
+    # Turing passerà numeri Dual a variance e rho.
+    # Grazie al tuo refactoring, l'NNGP allocherà internamente D e V di tipo Vector{Dual}
+    dist = NearestNeighbourGaussianProcess(strategy, variance, rho)
+    
+    y ~ dist
+end
+
+# create model with observations
+nngp_model = nngp_model(y, strategy)
+
+# run the model using Turing interface
+chain_nngp = sample(nngp_model, NUTS(0.65), 1000)
+
+var_mcmc = mean(chain_nngp[:variance])
+rho_mcmc = mean(chain_nngp[:rho])
+var_quantile = quantile(chain_nngp[:variance], [0.025, 0.500, 0.975])
+rho_quantile = quantile(chain_nngp[:rho], [0.025, 0.500, 0.975])
+
+println("Parameter  | True  | MCMC (Posterior Mean) [CI 95%]")
+println("--------------------------------------------------")
+println("Variance   | $true_variance   | $(round(var_mcmc, digits=3)) [$(round(var_quantile[1], digits=3)) - $(round(var_quantile[3], digits=3))]")
+println("Rho        | $true_rho   | $(round(rho_mcmc, digits=3)) [$(round(rho_quantile[1], digits=3)) - $(round(rho_quantile[3], digits=3))]\n")
+
+```
 ## References
 
 The algorithms and mathematical frameworks implemented in this package are heavily based on the following seminal works:
