@@ -5,7 +5,7 @@ using Random
 using Distributions
 using LinearAlgebra
 using SparseArrays
-import ..GaussianMarkovRandomFields: AbstractGaussianMarkovRandomField, AbstractCache
+import ..SparseGaussianMarkovRandomFields: AbstractGaussianMarkovRandomField, AbstractCache
 
 include("strategy.jl")
 include("utils.jl")
