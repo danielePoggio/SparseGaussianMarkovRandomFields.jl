@@ -1,5 +1,5 @@
-module GaussianMarkovRandomFields
-export GaussianMarkovRandomFields
+module SparseGaussianMarkovRandomFields
+export SparseGaussianMarkovRandomFields
 
 using Random
 using Distributions
@@ -54,4 +54,4 @@ export NearestNeighbourGaussianProcess, MaximinOrderingStrategy, update_precisio
 # import .SPDE: SPDEMesh, SPDEMatern
 # export SPDEMesh, SPDEMatern
 
-end # module GaussianMarkovRandomFields
+end # module SparseGaussianMarkovRandomFields

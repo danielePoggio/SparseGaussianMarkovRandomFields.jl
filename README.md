@@ -1,12 +1,14 @@
-# GaussianMarkovRandomFields
+# SparseGaussianMarkovRandomFields
 
 [![Build Status](https://github.com/danielePoggio/GaussianMarkovRandomFields.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/danielePoggio/GaussianMarkovRandomFields.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
-`GaussianMarkovRandomFields.jl` is a Julia package designed for the efficient evaluation and sampling of Gaussian Markov Random Fields (GMRFs) and Nearest Neighbour Gaussian Processes (NNGPs). 
+`SparseGaussianMarkovRandomFields.jl` is a Julia package designed for the efficient evaluation and sampling of Gaussian Markov Random Fields (GMRFs) and Nearest Neighbour Gaussian Processes (NNGPs). 
 
-It leverages sparse matrix operations and banded Cholesky factorizations to provide fast and scalable tools for spatial statistics and stochastic partial differential equation (SPDE) approaches.
+It is compatible with the default library `Distributions.jl` and `Turing.jl` via ForwardDiff. 
 
-## 📦 Installation
+The introduction of *AbstractCache* object allows to stored all the information about the structures of the precision matrix (and preallocating it) in order to improve the performance on huge massively MCMC iteration, keeping the default pipeline of `Distributions.jl` setup. In order to avoid issue with AD algorithms, the computations of logpdf for these distributions, avoid to use the preallocated containers for the value of matrix precision, rebuilding it if it is necessary.
+
+## Installation
 
 The package is currently in the process of being registered in the General registry. Once registered, you can install it using Julia's package manager. Open the Julia REPL, type `]` to enter the Pkg prompt, and run:
 
@@ -14,19 +16,18 @@ The package is currently in the process of being registered in the General regis
 pkg> add GaussianMarkovRandomFields
 ```
 
-## ✨ Features
+## Features
 
-* **Circulant GMRFs (1D):** Fast sampling and evaluation using Fast Fourier Transforms (FFT).
-* **SPDE Matérn Fields:** Implementation of the SPDE approach for Matérn covariance functions using Delaunay triangulations and rigid mass/stiffness matrices.
-* **Nearest Neighbour Gaussian Processes (NNGPs):** Scalable approximations for large spatial datasets.
-* **Ordering Strategies:** Includes advanced node-ordering strategies like `MaximinOrderingStrategy` and `DelaunayOrderingStrategy` utilizing Reverse Cuthill-McKee (SymRCM) permutations for optimal bandwidth reduction.
+1. **Circulant GMRFs (1D):** Fast sampling and evaluation using Fast Fourier Transforms (FFT).
+2. **Nearest Neighbour Gaussian Processes (NNGPs):** Scalable approximations for large spatial datasets.
+3. **Ordering Strategies:** Includes advanced node-ordering strategies like `MaximinOrderingStrategy` and `DelaunayOrderingStrategy` utilizing Reverse Cuthill-McKee (SymRCM) permutations for optimal bandwidth reduction.
 
-## 🚀 Quick Start
+## Quick Start
 
 Here is a simple example of how to create and sample from a 1D Circulant Gaussian Markov Random Field:
 
 ```julia
-using GaussianMarkovRandomFields
+using SparseGaussianMarkovRandomFields
 using Random
 using Distributions
 
@@ -50,7 +51,7 @@ Here an example of how to create and sample from a NNGP in 2D with exponential c
 ```julia
 using Random
 using Distributions
-using GaussianMarkovRandomFields
+using SparseGaussianMarkovRandomFields
 
 # Generate a grid of points in [0, 1] × [0, 1]
 nx, ny = 10, 10
@@ -79,7 +80,12 @@ println("Log-likelihood of the sample: ", log_likelihood)
 
 ```
 
-## 📚 References
+## NNGP Maximum Likehood Inference with `Optim.jl`
+
+
+## NNGP MCMC Inference with `Turing.jl` 
+
+## References
 
 The algorithms and mathematical frameworks implemented in this package are heavily based on the following seminal works:
 

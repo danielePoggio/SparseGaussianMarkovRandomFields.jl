@@ -1,6 +1,6 @@
 using Test
 using ADTypes
-using GaussianMarkovRandomFields
+using SparseGaussianMarkovRandomFields
 using ForwardDiff
 using Optim
 using Random

@@ -8,7 +8,7 @@ using StatsFuns
 using SpecialFunctions
 using FFTW
 
-import ..GaussianMarkovRandomFields: AbstractGaussianMarkovRandomField, AbstractCache
+import ..SparseGaussianMarkovRandomFields: AbstractGaussianMarkovRandomField, AbstractCache
 
 include("utils.jl")
 
