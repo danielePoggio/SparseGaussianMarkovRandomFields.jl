@@ -1,6 +1,6 @@
 using Base.Sort
 
-abstract type AbstractStrategy end
+abstract type AbstractStrategy <: AbstractCache end
 
 # ----------------------------------------------------------------
 # MinMax Ordering Strategy
@@ -16,6 +16,9 @@ struct MaximinOrderingStrategy{F <: Real} <: AbstractStrategy
     J::Vector{Int}
     V::Vector{F}
     D::Vector{F}
+    I_Q::Vector{Int}
+    J_Q::Vector{Int}
+    V_Q::Vector{F}
 end
 
 function MaximinOrderingStrategy(
@@ -99,6 +102,9 @@ function MaximinOrderingStrategy(
 
     points_permuted = points[permutation, :]
 
+    I_Q, J_Q = _build_precision_coordinates(neighbors)
+    V_Q = zeros(F, length(I_Q))
+
     return MaximinOrderingStrategy{F}(
         num_neighbors,
         points_permuted,
@@ -108,6 +114,9 @@ function MaximinOrderingStrategy(
         I,
         J,
         V,
-        D
+        D,
+        I_Q,
+        J_Q,
+        V_Q
     )
 end
