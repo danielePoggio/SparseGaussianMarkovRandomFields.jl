@@ -2,9 +2,18 @@
 Compute the eigenvalues for a circulant matrix with coefficient delta and offset.
 
 """
-function _compute_circulant_eigenvalues_1d(delta::F, n::Int; offset::F = 2.0)::Vector{F} where {F <: Real}
+
+function _compute_circulant_eigenvalues_1d!(eigenvalues::AbstractVector{F}, delta::F, n::Int; offset::Real = 2.0) where {F <: Real}
+    c0 = delta + convert(F, offset)
+    for j in 1:n
+        j_prime = j - 1
+        eigenvalues[j] = c0 - 2 * cos(2 * pi * j_prime / n)
+    end
+end
+
+function _compute_circulant_eigenvalues_1d(delta::F, n::Int; offset::Real = 2.0)::Vector{F} where {F <: Real}
     eigenvalues = zeros(F, n)
-    c0 = delta + offset
+    c0 = delta + convert(F, offset)
     for j in 1:n
         j_prime = j - 1
         eigenvalues[j] = c0 - 2 * cos(2 * pi * j_prime / n)

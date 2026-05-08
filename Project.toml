@@ -1,6 +1,6 @@
 name = "GaussianMarkovRandomFields"
 uuid = "8370a3c6-8201-4fb7-9bea-e012b68638d5"
-version = "0.2.1"
+version = "1.0.0"
 authors = ["danielePoggio <132289547+danielePoggio@users.noreply.github.com>"]
 
 [deps]
@@ -27,6 +27,11 @@ SymRCM = "0.2"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Optim", "ForwardDiff", "Turing", "Logging", "ADTypes"]
