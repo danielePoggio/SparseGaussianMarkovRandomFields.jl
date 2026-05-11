@@ -48,10 +48,10 @@ using .NNGP
 import .NNGP: NearestNeighbourGaussianProcess, MaximinOrderingStrategy, update_precision_values!
 export NearestNeighbourGaussianProcess, MaximinOrderingStrategy, update_precision_values!
 
-# include("spde/SPDE.jl")
+include("circulant_exponential_covariance/CirculantExponentialCovariance.jl")
 
-# using .SPDE
-# import .SPDE: SPDEMesh, SPDEMatern
-# export SPDEMesh, SPDEMatern
+using .CirculantExponentialCovariance
+import .CirculantExponentialCovariance: CirculantExponentialGaussianProcess, CirculantExponentialCache
+export CirculantExponentialGaussianProcess
 
 end # module SparseGaussianMarkovRandomFields

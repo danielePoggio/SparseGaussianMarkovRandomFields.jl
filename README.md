@@ -219,6 +219,104 @@ println("Variance   | $true_variance   | $(round(var_mcmc, digits=3)) [$(round(v
 println("Rho        | $true_rho   | $(round(rho_mcmc, digits=3)) [$(round(rho_quantile[1], digits=3)) - $(round(rho_quantile[3], digits=3))]\n")
 
 ```
+
+## Exponential Covariance Maximum Likehood Inference with `Optim.jl`
+```julia
+
+using ADTypes
+using Optim
+using Turing
+using Random
+using Distributions
+using SparseGaussianMarkovRandomFields
+
+n_nodes = 24
+phi_min = 3.0 / 24
+phi_max = 3.0
+true_phi = 2.5
+true_variance = 1.0
+rng = MersenneTwister(42)
+
+dist_vera = CirculantExponentialGaussianProcess(n_nodes, true_phi, true_variance)
+y = rand(rng, dist_vera)
+
+function neg_log_likelihood(params)
+    phi = exp(params[1]) 
+    variance = exp(params[2])
+    d = CirculantExponentialGaussianProcess(n_nodes, phi, variance)
+    return -logpdf(d, y)
+end
+
+lower_bounds = [-5.0, log(phi_min)]
+upper_bounds = [5.0, log(phi_max)]
+initial_guess = [log(0.5), log(0.5 * (phi_max + phi_min))]
+
+risultato_mle = optimize(
+    neg_log_likelihood, 
+    lower_bounds, 
+    upper_bounds, 
+    initial_guess, 
+    Fminbox(LBFGS()); 
+    autodiff = AutoForwardDiff()
+)
+
+phi_mle, variance_mle = exp.(Optim.minimizer(risultato_mle))
+
+println("True Phi: $true_phi")
+println("Estimated Phi (MLE): $(round(phi_mle, digits=3))\n")
+println("True Variance: $true_variance")
+println("Estimated Variance (MLE): $(round(variance_mle, digits=3))")
+```
+
+## Exponential Covariance MCMC Inference with `Turing.jl`
+
+```julia
+
+using Turing
+using ForwardDiff
+using Random
+using Distributions
+using SparseGaussianMarkovRandomFields
+
+n_nodes = 24
+phi_min = 3.0 / 24
+phi_max = 3.0
+true_phi = 2.5
+true_variance = 1.0
+rng = MersenneTwister(42)
+
+dist_vera = CirculantExponentialGaussianProcess(n_nodes, true_phi, true_variance)
+y = rand(rng, dist_vera)
+
+@model function circulant_model(y, n_nodes)
+    phi ~ Uniform(phi_min, phi_max) 
+    variance ~ Gamma(1.0, 1.0)
+    
+    y ~ CirculantExponentialGaussianProcess(n_nodes, phi, variance)
+end
+
+modello = circulant_model(y, n_nodes)
+
+chain = sample(modello, NUTS(0.65), 1000)
+
+display(chain)
+
+phi_vec = vec(chain[:phi])
+variance_vec = vec(chain[:variance])
+quantiles_phi = quantile(phi_vec, [0.025, 0.500, 0.975])
+quantiles_variance = quantile(variance_vec, [0.025, 0.500, 0.975])
+
+
+println("True Phi: $true_phi")
+println("Estimated Phi (MCMC): $(round(quantiles_phi[2], digits=3))")
+println("Credibility Interval 95% for Phi: $(round(quantiles_phi[1], digits=3)) - $(round(quantiles_phi[3], digits=3))")
+
+println("True Variance: $true_variance")
+println("Estimated Variance (MCMC): $(round(quantiles_variance[2], digits=3))")
+println("Credibility Interval 95% for Variance: $(round(quantiles_variance[1], digits=3)) - $(round(quantiles_variance[3], digits=3))")
+
+```
+
 ## References
 
 The algorithms and mathematical frameworks implemented in this package are heavily based on the following seminal works:
